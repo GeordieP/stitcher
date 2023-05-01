@@ -7,26 +7,24 @@ use clap::Parser;
 
 #[derive(Parser, Debug)]
 struct CliArgs {
-    /// Directory to look for files in
+    /// Directory to look for files in.
     #[arg(short, long)]
     input_path: PathBuf,
 
-    /// (optional) name of the output file. file type should match the input file types.
+    /// (optional) Name of the output file. file type should match the input file types.
     #[arg(short, long)]
     out: Option<PathBuf>,
 }
 
 fn main() -> Result<(), String> {
-    let args = CliArgs::parse();
-    let input_path = args.input_path;
-    let output_filename = args.out;
+    let cli_args = CliArgs::parse();
 
     let ffmpeg_bin_path = find_valid_ffmpeg_binary(vec![
         PathBuf::from("/bin/ffmpeg"),
         PathBuf::from("./vendor/ffmpeg/ffmpeg"),
     ])?;
 
-    let output_file_name = match output_filename {
+    let output_file_name = match cli_args.out {
         Some(out) => out,
         None => {
             let date = Local::now().format("%d-%h-%Y %H:%M");
@@ -34,7 +32,7 @@ fn main() -> Result<(), String> {
         }
     };
 
-    let files_to_stitch = look_for_files(input_path);
+    let files_to_stitch = look_for_files(cli_args.input_path);
     if files_to_stitch.len() == 0 {
         return Err(String::from("found no files!"));
     }
