@@ -3,8 +3,19 @@
 
 use chrono::prelude::*;
 use std::{path::PathBuf, process::Command};
+use clap::Parser;
+
+#[derive(Parser, Debug)]
+struct CliArgs {
+    /// Directory to look for files in
+    #[arg(short, long)]
+    input_path: PathBuf,
+}
 
 fn main() -> Result<(), String> {
+    let args = CliArgs::parse();
+    let input_path = args.input_path;
+
     // try to find an ffmpeg executable
     //
     let ffmpeg_bin_path = find_valid_ffmpeg_binary(vec![
@@ -18,7 +29,7 @@ fn main() -> Result<(), String> {
     let output_file_name = format!("STITCH_OUTPUT_{}.wav", date); // TODO: make this a cli arg
     let output_file_name = PathBuf::from(output_file_name);
 
-    let files_to_stitch = look_for_files(PathBuf::from("./test/stitcher/sounds/wav"));
+    let files_to_stitch = look_for_files(input_path);
     if files_to_stitch.len() == 0 {
         return Err(String::from("found no files!"));
     }
