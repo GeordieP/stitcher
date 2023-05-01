@@ -10,11 +10,18 @@ struct CliArgs {
     /// Directory to look for files in
     #[arg(short, long)]
     input_path: PathBuf,
+
+    /// (optional) name of the output file. file type should match the input file types.
+    #[arg(short, long)]
+    out: Option<PathBuf>,
 }
 
 fn main() -> Result<(), String> {
+    // cli args
+    //
     let args = CliArgs::parse();
     let input_path = args.input_path;
+    let output_filename = args.out;
 
     // try to find an ffmpeg executable
     //
@@ -25,9 +32,13 @@ fn main() -> Result<(), String> {
 
     // stitch all files in the target directory
     //
-    let date = Local::now().format("%d-%h-%Y %H:%M");
-    let output_file_name = format!("STITCH_OUTPUT_{}.wav", date); // TODO: make this a cli arg
-    let output_file_name = PathBuf::from(output_file_name);
+    let output_file_name = match output_filename {
+        Some(out) => out,
+        None => {
+            let date = Local::now().format("%d-%h-%Y %H:%M");
+            PathBuf::from(format!("STITCH_OUTPUT_{}.wav", date))
+        }
+    };
 
     let files_to_stitch = look_for_files(input_path);
     if files_to_stitch.len() == 0 {
