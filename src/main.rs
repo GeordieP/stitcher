@@ -37,7 +37,7 @@ fn main() -> Result<(), String> {
         return Err(String::from("found no files!"));
     }
 
-    stitch_files(ffmpeg_bin_path, output_file_name, files_to_stitch);
+    stitch_files(ffmpeg_bin_path, output_file_name, files_to_stitch)?;
 
     Ok(())
 }
@@ -86,7 +86,7 @@ fn stitch_files(
     ffmpeg_bin_path: std::path::PathBuf,
     output_path: std::path::PathBuf,
     files: Vec<std::path::PathBuf>,
-) -> std::path::PathBuf {
+) -> Result<std::path::PathBuf, String> {
     // set up paths
     //
     let output_file_path = output_path.as_os_str();
@@ -103,14 +103,14 @@ fn stitch_files(
                     wip.push_str(file);
                     wip.push_str("\n");
                 }
-                None => panic!("failed to convert the file paths into a single string"),
+                None => return Err(format!("failed to parse the list of files: found a None")),
             }
         }
         wip
     };
 
     if let Err(e) = std::fs::write(&inputs_file_path, &inputs_file_contents) {
-        panic!("failed to write lines to the temp file!: {:?}", e);
+        return Err(format!("failed to write lines to the temp file!: {:?}", e));
     }
 
     // run the command
@@ -133,19 +133,19 @@ fn stitch_files(
     // check the result
     //
     match output.exit_ok() {
-        Err(_e) => panic!("did not concatenate the files: exit not ok: {:?}", &output),
+        Err(_e) => return Err(format!("did not concatenate the files: exit not ok: {:?}", &output)),
         Ok(_) => println!("successfully concatenated the files"),
     }
 
     // clean the temp file up
     //
     if let Err(e) = std::fs::remove_file(inputs_file_path) {
-        panic!("failed to clean up the temporary file! {:?}", e);
+        return Err(format!("failed to clean up the temporary file! {:?}", e));
     }
 
     //
 
-    PathBuf::from(output_file_path)
+    Ok(PathBuf::from(output_file_path))
 }
 
 #[cfg(test)]
