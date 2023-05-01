@@ -2,6 +2,10 @@
 
 a little ffmpeg utility i needed
 
+---
+
+needs rust nightly - uses `#![feature()]`
+
 run
 
 ```
