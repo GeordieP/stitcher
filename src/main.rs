@@ -17,21 +17,15 @@ struct CliArgs {
 }
 
 fn main() -> Result<(), String> {
-    // cli args
-    //
     let args = CliArgs::parse();
     let input_path = args.input_path;
     let output_filename = args.out;
 
-    // try to find an ffmpeg executable
-    //
     let ffmpeg_bin_path = find_valid_ffmpeg_binary(vec![
         PathBuf::from("/bin/ffmpeg"),
         PathBuf::from("./vendor/ffmpeg/ffmpeg"),
     ])?;
 
-    // stitch all files in the target directory
-    //
     let output_file_name = match output_filename {
         Some(out) => out,
         None => {
@@ -50,8 +44,6 @@ fn main() -> Result<(), String> {
     Ok(())
 }
 
-//
-//
 //
 
 fn find_valid_ffmpeg_binary(
