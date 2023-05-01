@@ -184,7 +184,8 @@ mod test {
 
         let input_files = look_for_files(test_path_wav());
         let expected_output_path = std::path::PathBuf::from("./TEST_OUTPUT.wav");
-        let actual_output_path = stitch_files(ffmpeg_exe_path, expected_output_path.clone(), input_files);
+        let actual_output_path = stitch_files(ffmpeg_exe_path, expected_output_path.clone(), input_files)
+            .expect("test failed to run stitch_files");
 
         assert!(
             actual_output_path == expected_output_path,
